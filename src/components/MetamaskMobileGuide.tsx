@@ -13,7 +13,6 @@ const MetaMaskMobileGuide: React.FC = () => {
           navigator.userAgent
             );
       setIsMobile(mobileCheck);
-
       // Show the banner if on mobile and no ethereum provider
       if (mobileCheck && !window.ethereum) {
         setShowBanner(true);
@@ -40,7 +39,7 @@ const MetaMaskMobileGuide: React.FC = () => {
       </button>
       <h3 className="text-lg font-bold">Using MetaMask on Mobile?</h3>
       <p className="mb-3">
-        For the best experience, open this website in the MetaMask app's
+        For the best experience, open this website in the MetaMask app&apos;s
         browser.
       </p>
       <button

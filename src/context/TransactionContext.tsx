@@ -103,10 +103,8 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
   // Helper to open MetaMask mobile app
   const openMetaMaskMobile = () => {
     if (typeof window === "undefined") return;
-
-    const currentUrl = encodeURIComponent(window.location.href);
+    // const currentUrl = encodeURIComponent(window.location.href);
     const deepLink = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
-
     // Open MetaMask mobile app
     window.location.href = deepLink;
   };
