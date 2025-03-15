@@ -282,7 +282,7 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [checkIfWalletIsConnected]);
 
   return (
     <TransactionContext.Provider

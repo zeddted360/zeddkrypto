@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState, useEffect } from "react";
 
 export const useFetchGiphy = ({ keyword }: { keyword: string }) => {
@@ -9,9 +9,9 @@ export const useFetchGiphy = ({ keyword }: { keyword: string }) => {
   const fetchGiphys = async () => {
     try {
       const res = await fetch(
-        `https://api.giphy.com/v1/gifs/search?api_key=${API_KEY}&q=${keyword.split(
-          " "
-        ).join("")}&limit=1`
+        `https://api.giphy.com/v1/gifs/search?api_key=${API_KEY}&q=${keyword
+          .split(" ")
+          .join("")}&limit=1`
       );
       if (!res.ok) {
         throw new Error("Error fetching giph");
