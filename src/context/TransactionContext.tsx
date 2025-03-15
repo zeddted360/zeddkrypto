@@ -10,6 +10,7 @@ import {
 import { BrowserProvider, Contract, parseEther, formatEther } from "ethers";
 import { contractABI, contractAddress } from "../../utils/constants";
 
+// Define types but don't access window directly
 declare global {
   interface Window {
     ethereum: import("ethers").Eip1193Provider;
@@ -53,29 +54,6 @@ interface IRawTransaction {
   timestamp: string;
 }
 
-const ethereum = typeof window !== undefined ? window.ethereum : null;
-console.log("the ethereum is ", ethereum);
-
-const getEthereumContract = async () => {
-  try {
-    if (!ethereum) return null;
-
-    const provider = new BrowserProvider(ethereum);
-    const signer = await provider.getSigner();
-
-    const transactionContract = new Contract(
-      contractAddress,
-      contractABI,
-      signer
-    );
-
-    return transactionContract;
-  } catch (error) {
-    console.error("Failed to get Ethereum contract:", error);
-    return null;
-  }
-};
-
 export const initialState: IFormData = {
   addressTo: "",
   amount: "",
@@ -83,6 +61,7 @@ export const initialState: IFormData = {
   message: "",
 };
 
+// Create the context with default values
 export const TransactionContext = createContext<ITransactionContext>({
   formData: initialState,
   setFormData: () => {},
@@ -99,13 +78,42 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const [formData, setFormData] = useState<IFormData>(initialState);
   const [currentAccount, setCurrentAccount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [transactionCount, setTransactionCount] = useState<string | null>(
-    localStorage.getItem("transactionCount")
-  );
+  const [transactionCount, setTransactionCount] = useState<string | null>(null);
   const [allTransactions, setAllTransactions] = useState<ITransaction[]>([]);
+  const [isBrowser, setIsBrowser] = useState(false);
+
+  // Safe function to get ethereum object
+  const getEthereum = () => {
+    if (typeof window !== "undefined") {
+      return window.ethereum;
+    }
+    return undefined;
+  };
+
+  const getEthereumContract = async () => {
+    try {
+      const ethereum = getEthereum();
+      if (!ethereum) return null;
+
+      const provider = new BrowserProvider(ethereum);
+      const signer = await provider.getSigner();
+
+      const transactionContract = new Contract(
+        contractAddress,
+        contractABI,
+        signer
+      );
+
+      return transactionContract;
+    } catch (error) {
+      console.error("Failed to get Ethereum contract:", error);
+      return null;
+    }
+  };
 
   const getAllTransactions = async () => {
     try {
+      const ethereum = getEthereum();
       if (!ethereum) {
         alert("Please install MetaMask");
         return;
@@ -147,6 +155,7 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
 
   const checkIfWalletIsConnected = async () => {
     try {
+      const ethereum = getEthereum();
       if (!ethereum) {
         console.log("Please install MetaMask");
         return;
@@ -167,6 +176,7 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
 
   const checkIfTransactionExists = async () => {
     try {
+      const ethereum = getEthereum();
       if (!ethereum) return;
 
       const transactionContract = await getEthereumContract();
@@ -192,6 +202,7 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
 
   const connectWallet = async () => {
     try {
+      const ethereum = getEthereum();
       if (!ethereum) {
         alert("Please install MetaMask");
         return;
@@ -209,6 +220,7 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
 
   const sendTransaction = async () => {
     try {
+      const ethereum = getEthereum();
       if (!ethereum) {
         alert("Please install MetaMask");
         return;
@@ -286,14 +298,30 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Initialize localStorage on client-side only
   useEffect(() => {
-    checkIfWalletIsConnected();
-    const timer = setTimeout(() => {
-      checkIfTransactionExists();
-    }, 1000);
+    setIsBrowser(true);
 
-    return () => clearTimeout(timer);
-  }, [checkIfWalletIsConnected]);
+    // Only access localStorage in the browser
+    if (typeof window !== "undefined") {
+      const storedCount = localStorage.getItem("transactionCount");
+      if (storedCount) {
+        setTransactionCount(storedCount);
+      }
+    }
+  }, []);
+
+  // Only run these effects on the client side
+  useEffect(() => {
+    if (isBrowser) {
+      checkIfWalletIsConnected();
+      const timer = setTimeout(() => {
+        checkIfTransactionExists();
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isBrowser]);
 
   return (
     <TransactionContext.Provider
