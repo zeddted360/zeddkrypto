@@ -44,6 +44,15 @@ interface ITransactionContext {
   getAllTransactions: () => Promise<void>;
 }
 
+interface IRawTransaction {
+  receiver: string;
+  sender: string;
+  amount: string;
+  keyword: string;
+  message: string;
+  timestamp: string;
+}
+
 const ethereum = typeof window !== undefined ? window.ethereum : null;
 console.log("the ethereum is ", ethereum);
 
@@ -108,16 +117,18 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
       try {
         const transactions = await transactionContract.getAllTransactions();
         console.log("the all transactions is ", transactions);
-        const structuredTransactions = transactions.map((transaction: any) => ({
-          addressTo: transaction.receiver,
-          addressFrom: transaction.sender,
-          amount: Number(formatEther(transaction.amount)),
-          keyword: transaction.keyword,
-          message: transaction.message,
-          timestamp: new Date(
-            Number(transaction.timestamp) * 1000
-          ).toLocaleString(),
-        }));
+        const structuredTransactions: ITransaction[] = transactions.map(
+          (transaction: IRawTransaction) => ({
+            addressTo: transaction.receiver,
+            addressFrom: transaction.sender,
+            amount: Number(formatEther(transaction.amount)),
+            keyword: transaction.keyword,
+            message: transaction.message,
+            timestamp: new Date(
+              Number(transaction.timestamp) * 1000
+            ).toLocaleString(),
+          })
+        );
 
         setAllTransactions(structuredTransactions);
         console.log("All transactions", structuredTransactions);
