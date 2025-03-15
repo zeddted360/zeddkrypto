@@ -82,12 +82,33 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const [allTransactions, setAllTransactions] = useState<ITransaction[]>([]);
   const [isBrowser, setIsBrowser] = useState(false);
 
+  // Check if on mobile device
+  const isMobileDevice = () => {
+    if (typeof navigator !== "undefined") {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+    }
+    return false;
+  };
+
   // Safe function to get ethereum object
   const getEthereum = () => {
     if (typeof window !== "undefined") {
       return window.ethereum;
     }
     return undefined;
+  };
+
+  // Helper to open MetaMask mobile app
+  const openMetaMaskMobile = () => {
+    if (typeof window === "undefined") return;
+
+    const currentUrl = encodeURIComponent(window.location.href);
+    const deepLink = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
+
+    // Open MetaMask mobile app
+    window.location.href = deepLink;
   };
 
   const getEthereumContract = async () => {
@@ -115,7 +136,17 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
     try {
       const ethereum = getEthereum();
       if (!ethereum) {
-        alert("Please install MetaMask");
+        if (isMobileDevice()) {
+          if (
+            confirm(
+              "Please open this website in the MetaMask mobile app. Would you like to open MetaMask now?"
+            )
+          ) {
+            openMetaMaskMobile();
+          }
+        } else {
+          alert("Please install MetaMask");
+        }
         return;
       }
 
@@ -157,7 +188,7 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
     try {
       const ethereum = getEthereum();
       if (!ethereum) {
-        console.log("Please install MetaMask");
+        console.log("MetaMask not detected");
         return;
       }
 
@@ -203,8 +234,20 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
   const connectWallet = async () => {
     try {
       const ethereum = getEthereum();
+
+      // Handle mobile detection
       if (!ethereum) {
-        alert("Please install MetaMask");
+        if (isMobileDevice()) {
+          if (
+            confirm(
+              "MetaMask not detected. Open this website in the MetaMask mobile app? (Make sure you have MetaMask installed)"
+            )
+          ) {
+            openMetaMaskMobile();
+          }
+        } else {
+          alert("Please install MetaMask");
+        }
         return;
       }
 
@@ -222,7 +265,17 @@ export const TransactionProvider = ({ children }: { children: ReactNode }) => {
     try {
       const ethereum = getEthereum();
       if (!ethereum) {
-        alert("Please install MetaMask");
+        if (isMobileDevice()) {
+          if (
+            confirm(
+              "Please open this website in the MetaMask mobile app to send transactions. Open MetaMask now?"
+            )
+          ) {
+            openMetaMaskMobile();
+          }
+        } else {
+          alert("Please install MetaMask");
+        }
         return;
       }
 
