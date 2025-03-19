@@ -1,9 +1,10 @@
+"use client";
 import { BsShieldFillCheck } from "react-icons/bs";
 import { BiSearchAlt } from "react-icons/bi";
 import { RiHeart2Fill } from "react-icons/ri";
 import { JSX } from "react";
 
-interface IServiceprops {
+interface IServiceProps {
   title: string;
   subtitle: string;
   color: string;
@@ -16,17 +17,19 @@ const Services = () => {
     subtitle,
     color,
     icon,
-  }: IServiceprops): JSX.Element => {
+  }: IServiceProps): JSX.Element => {
     return (
-      <div className="flex-row flex justify-start items-center p-6 rounded-2xl bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 ease-in-out hover:scale-105 cursor-pointer">
+      <div className="flex flex-row items-center p-6 rounded-2xl bg-white/10 backdrop-blur-md border border-gray-800 hover:bg-white/20 hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105 cursor-pointer max-w-lg w-full">
         <div
-          className={`w-12 h-12 rounded-full flex justify-center items-center ${color} shadow-lg`}
+          className={`w-14 h-14 rounded-full flex justify-center items-center ${color} shadow-lg`}
         >
           {icon}
         </div>
         <div className="ml-6 flex flex-col flex-1">
-          <h1 className="text-white text-xl font-semibold">{title}</h1>
-          <p className="mt-2 text-gray-300 text-base leading-relaxed">
+          <h1 className="text-white text-xl font-semibold tracking-tight">
+            {title}
+          </h1>
+          <p className="mt-2 text-gray-400 text-base leading-relaxed line-clamp-3">
             {subtitle}
           </p>
         </div>
@@ -35,39 +38,44 @@ const Services = () => {
   };
 
   return (
-    <div className="flex justify-center flex-col md:flex-row items-center w-full gradient-bg-services py-20">
-      <div className="flex flex-col items-center justify-between md:p-20 md:flex-row py-12 px-4">
-        <div className="flex flex-col flex-1 justify-start items-start">
-          <h1 className="text-white text-4xl sm:text-6xl font-bold py-2 text-gradient leading-tight">
-            Services that we
+    <div className="flex flex-col md:flex-row items-center justify-center w-full bg-gradient-to-br from-gray-900 via-black to-gray-800 py-16 px-6">
+      <div className="flex flex-col md:flex-row items-center justify-between max-w-7xl w-full gap-12">
+        {/* Left Section */}
+        <div className="flex flex-col flex-1 items-start text-center md:text-left">
+          <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-extrabold py-2 leading-tight">
+            Services We
             <br />
-            continue to improve
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
+              Continuously Improve
+            </span>
           </h1>
-          <p className="mt-6 text-gray-300 text-lg max-w-xl">
-            Experience the best of our services with enhanced security,
-            competitive rates, and lightning-fast transactions.
+          <p className="mt-6 text-gray-300 text-lg md:text-xl max-w-md">
+            Discover top-tier services with cutting-edge security, unbeatable
+            rates, and instant transactions.
           </p>
         </div>
-      </div>
-      <div className="flex-1 flex flex-col justify-start items-center space-y-6 px-4 md:px-0">
-        <ServiceCard
-          title="Security Guaranteed"
-          subtitle="Your security is our top priority. We implement state-of-the-art encryption and security measures to protect your assets and transactions."
-          color="bg-[#2952E3]"
-          icon={<BsShieldFillCheck fontSize={24} className="text-white" />}
-        />
-        <ServiceCard
-          title="Best Exchange Rates"
-          subtitle="Get the most competitive rates in the market. We continuously monitor and update our rates to ensure you get the best value for your transactions."
-          color="bg-[#8945F8]"
-          icon={<BiSearchAlt fontSize={24} className="text-white" />}
-        />
-        <ServiceCard
-          title="Fastest Transactions"
-          subtitle="Experience lightning-fast transactions with our optimized network. Your transfers are processed in seconds, not hours."
-          color="bg-[#F84550]"
-          icon={<RiHeart2Fill fontSize={24} className="text-white" />}
-        />
+
+        {/* Right Section - Service Cards */}
+        <div className="flex-1 flex flex-col justify-start items-center gap-6 w-full">
+          <ServiceCard
+            title="Security Guaranteed"
+            subtitle="Your assets are safe with us. We use advanced encryption and robust security protocols to protect every transaction."
+            color="bg-gradient-to-br from-blue-600 to-blue-400"
+            icon={<BsShieldFillCheck fontSize={28} className="text-white" />}
+          />
+          <ServiceCard
+            title="Best Exchange Rates"
+            subtitle="Enjoy the most competitive rates available. Our system optimizes exchange values in real-time for maximum benefit."
+            color="bg-gradient-to-br from-purple-600 to-purple-400"
+            icon={<BiSearchAlt fontSize={28} className="text-white" />}
+          />
+          <ServiceCard
+            title="Fastest Transactions"
+            subtitle="Send and receive crypto in seconds. Our optimized network ensures lightning-fast processing times."
+            color="bg-gradient-to-br from-red-600 to-red-400"
+            icon={<RiHeart2Fill fontSize={28} className="text-white" />}
+          />
+        </div>
       </div>
     </div>
   );

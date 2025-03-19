@@ -1,9 +1,9 @@
 "use client";
 import { useContext } from "react";
-import { TransactionContext } from "../context/TransactionContext";
+import { _TransactionContext } from "../context/Transaction";
 
 const useTransaction = () => {
-  const context = useContext(TransactionContext);
+  const context = useContext(_TransactionContext);
 
   if (!context) {
     throw new Error(

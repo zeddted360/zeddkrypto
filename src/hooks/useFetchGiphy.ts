@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 export const useFetchGiphy = ({ keyword }: { keyword: string }) => {
   const [giphyURL, setGiphyURL] = useState("");
 
-  const API_KEY = process.env.VITE_GIPHY_API;
+  const API_KEY = process.env.NEXT_PUBLIC_VITE_GIPHY_API;
 
   const fetchGiphys = async () => {
     try {

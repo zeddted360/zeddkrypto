@@ -1,12 +1,15 @@
-"use client"
+"use client";
 import { SiEthereum } from "react-icons/si";
 import { BsInfoCircle } from "react-icons/bs";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import { Loader } from "./";
 import useTransaction from "../hooks/useTransaction";
 import { shortenAddress } from "../../utils/shortenAddres";
+import { isAddress } from "ethers";
 
 const Welcome = () => {
+  const [error, setError] = useState<string | null>("");
+
   const {
     formData,
     setFormData,
@@ -23,140 +26,171 @@ const Welcome = () => {
 
   const handleSubmit = async (): Promise<void> => {
     const { addressTo, amount, keyword, message } = formData;
+    const validateFormData = (): string | null => {
+      if (!isAddress(addressTo)) return "Invalid Ethereum address";
+      if (!amount || isNaN(Number(amount)) || Number(amount) <= 0)
+        return "Amount must be a positive number";
+      if (!keyword.trim()) return "Keyword is required";
+      if (!message.trim()) return "Message is required";
+      if (addressTo === currentAccount)
+        return "Cannot send to your own address";
+      return null;
+    };
 
-    if (!(addressTo && amount && keyword && message)) return;
-
+    const validationError = validateFormData();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    setError(null);
     await sendTransaction();
   };
 
   const commonStyles =
-    "min-h-[70px] sm:px-4 px-2 py-3 text-white sm:min-w-[120px] flex justify-center items-center border-[2px] border-gray-700 hover:border-blue-500 transition-colors duration-300";
+    "min-h-[70px] px-4 py-3 text-white flex justify-center items-center border-[2px] border-gray-700 hover:border-blue-500 transition-all duration-300 rounded-lg shadow-md";
 
   return (
-    <div className="flex w-full justify-center items-center bg-gradient-to-b from-gray-900 to-black min-h-screen p-4">
-      <div className="flex flex-col md:flex-row items-start  justify-between max-w-6xl w-full gap-8">
-        <div className="flex flex-1 justify-start flex-col md:mr-10">
-          <h1 className="text-4xl sm:text-6xl text-white font-bold mb-6">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-600">
+    <div
+      id="Market"
+      className="flex w-full justify-center items-center bg-gradient-to-br from-gray-900 via-black to-gray-800 min-h-screen p-6"
+    >
+      <div className="flex flex-col md:flex-row items-center justify-between max-w-7xl w-full gap-10">
+        {/* Left Section */}
+        <div className="flex flex-1 flex-col items-start text-center md:text-left">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl text-white font-extrabold mb-6 leading-tight">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">
               Send Crypto
             </span>
-            <br /> across the world
+            <br /> Across the World
           </h1>
-          <p className="text-left mb-8 text-gray-300 font-light w-11/12 md:w-9/12 text-lg">
-            Explore the Crypto world. Buy and sell cryptocurrencies easily on
-            Krypto with low fees and maximum security.
+          <p className="mb-8 text-gray-300 font-light text-lg md:text-xl max-w-md">
+            Explore the future of finance. Transact securely and instantly on
+            Krypto with minimal fees.
           </p>
-
           <button
-            className={`flex justify-center items-center my-5 p-4 rounded-full cursor-pointer transition-all duration-300 ${
+            onClick={connectWallet}
+            className={`inline-flex items-center justify-center px-6 py-3 rounded-full text-white font-semibold text-lg transition-all duration-300 ${
               currentAccount
                 ? "bg-green-600 hover:bg-green-700"
-                : "bg-blue-600 hover:bg-blue-700"
+                : "bg-blue-600 hover:bg-blue-800"
             }`}
-            type="button"
-            onClick={connectWallet}
           >
-            <p className="text-base font-semibold text-white">
-              {currentAccount ? "Wallet Connected ✓" : "Connect Wallet"}
-            </p>
+            {currentAccount ? (
+              <>
+                <span className="mr-2">✓</span> Wallet Connected
+              </>
+            ) : (
+              "Connect Wallet"
+            )}
           </button>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 w-full mt-10 mb-5 gap-2">
-            <div className={`rounded-tl-2xl ${commonStyles}`}>Reliability</div>
-            <div className={`${commonStyles}`}>Security</div>
-            <div className={`rounded-tr-2xl ${commonStyles}`}>Ethereum</div>
-            <div className={`rounded-bl-2xl ${commonStyles}`}>Web 3.0</div>
-            <div className={`${commonStyles}`}>Low Fees</div>
-            <div className={`rounded-br-2xl ${commonStyles}`}>Blockchain</div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 w-full mt-12">
+            {[
+              "Reliability",
+              "Security",
+              "Ethereum",
+              "Web 3.0",
+              "Low Fees",
+              "Blockchain",
+            ].map((item) => (
+              <div key={item} className={commonStyles}>
+                {item}
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="flex flex-col flex-1 w-full max-w-md self-center ">
-          <div className="p-5 flex flex-col justify-between rounded-xl h-48 sm:w-full my-5 eth-card bg-gradient-to-r from-blue-800 to-purple-800 hover:from-blue-700 hover:to-purple-700 transition-all duration-500 shadow-xl">
-            <div className="flex justify-between items-start">
-              <div className="h-10 w-10 rounded-full border-2 border-white flex justify-center items-center bg-black/30 backdrop-blur-sm">
-                <SiEthereum fontSize={21} color="white" />
+        {/* Right Section */}
+        <div className="flex flex-1 flex-col w-full max-w-md">
+          {/* Ethereum Card */}
+          <div className="p-6 flex flex-col justify-between rounded-2xl h-52 bg-gradient-to-br from-blue-900 to-purple-900 hover:from-blue-800 hover:to-purple-800 transition-all duration-500 shadow-lg">
+            <div className="flex justify-between items-center">
+              <div className="h-12 w-12 rounded-full border-2 border-white flex justify-center items-center bg-black/40 backdrop-blur-md">
+                <SiEthereum fontSize={24} color="white" />
               </div>
-              <div className="flex items-center bg-black/30 rounded-full p-2 backdrop-blur-sm cursor-help">
-                <BsInfoCircle fontSize={17} color="white" />
+              <div className="p-2 bg-black/40 rounded-full backdrop-blur-md cursor-pointer hover:bg-black/60 transition-colors">
+                <BsInfoCircle
+                  fontSize={18}
+                  color="white"
+                  title="Ethereum Info"
+                />
               </div>
             </div>
             <div>
-              <p className="text-white font-light text-sm">
+              <p className="text-white font-light text-sm truncate max-w-[80%]">
                 {currentAccount
-                  ? `${shortenAddress(currentAccount)}`
+                  ? shortenAddress(currentAccount)
                   : "Connect your wallet"}
               </p>
-              <p className="text-white font-bold text-lg mt-1">Ethereum</p>
+              <p className="text-white font-bold text-xl mt-1">Ethereum</p>
               {currentAccount && (
-                <p className="text-green-300 text-sm mt-1">Connected</p>
+                <p className="text-green-400 text-sm mt-2">Connected ✓</p>
               )}
-             
             </div>
           </div>
 
-          {/* form here */}
-          <div className="p-6 w-full flex flex-col justify-start gap-y-2  items-center bg-gray-900/80 backdrop-blur-md rounded-xl shadow-xl border border-gray-800">
-            <h2 className="text-white text-xl font-medium mb-6 self-start">
+          {/* Transaction Form */}
+          <div
+            id="Exchange"
+            className="p-6 mt-6 flex flex-col gap-5 bg-gray-900/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-800"
+          >
+            <h2 className="text-white text-2xl font-semibold">
               Send Transaction
             </h2>
-
-            <input
-              id="addressTo"
-              name="addressTo"
-              placeholder="Recipient Address"
-              type="text"
-              value={formData.addressTo}
-              onChange={handleChange}
-              className="w-full rounded-lg p-3 outline-none bg-gray-800 text-white border border-gray-700 focus:border-blue-500 transition-colors duration-300 text-sm"
-            />
-            <input
-              id="amount"
-              name="amount"
-              placeholder="Amount (ETH)"
-              type="number"
-              step="0.0001"
-              value={formData.amount}
-              onChange={handleChange}
-              className="w-full rounded-lg p-3 outline-none bg-gray-800 text-white border border-gray-700 focus:border-blue-500 transition-colors duration-300 text-sm"
-            />
-            <input
-              id="keyword"
-              name="keyword"
-              placeholder="Keyword (for GIF)"
-              type="text"
-              value={formData.keyword}
-              onChange={handleChange}
-              className="w-full rounded-lg p-3 outline-none bg-gray-800 text-white border border-gray-700 focus:border-blue-500 transition-colors duration-300 text-sm"
-            />
-            <input
-              id="message"
-              name="message"
-              placeholder="Message"
-              type="text"
-              value={formData.message}
-              onChange={handleChange}
-              className="w-full rounded-lg p-3 outline-none bg-gray-800 text-white border border-gray-700 focus:border-blue-500 transition-colors duration-300 text-sm"
-            />
-
-            <div className="w-full mt-2">
-              {isLoading ? (
-                <div className="flex justify-center items-center py-3">
-                  <Loader size="medium" color="blue" />
-                  <span className="ml-3 text-white">
-                    Processing transaction...
-                  </span>
-                </div>
-              ) : (
-                <button
-                  onClick={handleSubmit}
-                  disabled={!currentAccount}
-                  className="text-white w-full px-6 py-3 text-base font-medium rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            {[
+              {
+                id: "addressTo",
+                placeholder: "Recipient Address",
+                type: "text",
+              },
+              {
+                id: "amount",
+                placeholder: "Amount (ETH)",
+                type: "number",
+                step: "0.0001",
+              },
+              { id: "keyword", placeholder: "Keyword (for GIF)", type: "text" },
+              { id: "message", placeholder: "Message", type: "text" },
+            ].map(({ id, placeholder, type, step }) => (
+              <div key={id} className="relative">
+                <input
+                  id={id}
+                  name={id}
+                  placeholder={placeholder}
+                  type={type}
+                  step={step}
+                  value={formData[id as keyof typeof formData]}
+                  onChange={handleChange}
+                  className="w-full rounded-lg p-3 bg-gray-800 text-white border border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-300 text-sm placeholder-gray-500 peer"
+                />
+                <label
+                  htmlFor={id}
+                  className="absolute -top-2 left-3 text-xs text-gray-400 bg-gray-900 px-1 peer-focus:text-blue-500 transition-all duration-300"
                 >
-                  {currentAccount ? "Send Now" : "Connect Wallet to Send"}
-                </button>
+                  {placeholder}
+                </label>
+              </div>
+            ))}
+            {error && (
+              <div className="p-2 bg-red-500/10 border border-red-500 text-red-400 text-sm rounded-lg text-center">
+                {error}
+              </div>
+            )}
+            <button
+              onClick={handleSubmit}
+              disabled={!currentAccount || isLoading}
+              className="w-full px-6 py-3 mt-2 rounded-lg text-white font-semibold text-base bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 disabled:opacity-70 transition-all duration-300 flex items-center justify-center"
+            >
+              {isLoading ? (
+                <>
+                  <Loader size="small" color="white" />
+                  Processing...
+                </>
+              ) : currentAccount ? (
+                "Send Now"
+              ) : (
+                "Connect Wallet to Send"
               )}
-            </div>
+            </button>
           </div>
         </div>
       </div>
